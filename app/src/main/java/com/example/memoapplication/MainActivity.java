@@ -2,13 +2,92 @@ package com.example.memoapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 
 public class MainActivity extends AppCompatActivity {
+
+    Button btnSave;
+    Button btnDelete;
+    ListView lvMemoList = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        btnSave = findViewById(R.id.btnSave);
+        btnDelete = findViewById(R.id.btnDelete);
+        lvMemoList = findViewById(R.id.lvMemoList);
+
+        memoListDisplay();
+    }
+
+    //追加ボタン
+    public void onAddButtonClick(View view) {
+
+        EditText etTitle = findViewById(R.id.etTitle);
+        etTitle.setText("new memo");
+        EditText etNote = findViewById(R.id.etNote);
+        etNote.setText("");
+        btnSave.setEnabled(true);
+
+    }
+
+    //保存ボタン
+    public void onSaveButtonClick(View view) {
+        EditText etNote = findViewById(R.id.etNote);
+        String note = etNote.getText().toString();
+
+        EditText etTitle = findViewById(R.id.etTitle);
+        String title = etTitle.getText().toString();
+
+        DetabaseHelper helper = new DetabaseHelper(MainActivity.this);
+        SQLiteDatabase db = helper.getWritableDatabase();
+
+        try {
+            String sqlInsert = "INSERT INTO notememo (name, note) VALUES (?, ?)";
+            SQLiteStatement stmt = db.compileStatement(sqlInsert);
+            stmt.bindString(1, title);
+            stmt.bindString(2, note);
+
+            stmt.executeInsert();
+        }
+        finally {
+            db.close();
+        }
+
+        etTitle.setText("");
+        etNote.setText("");
+        btnSave.setEnabled(false);
+        btnDelete.setEnabled(false);
+
+        memoListDisplay();
+    }
+
+    //メモリスト表示
+    private void memoListDisplay() {
+        DetabaseHelper helper = new DetabaseHelper(MainActivity.this);
+        SQLiteDatabase db = helper.getReadableDatabase();
+
+        try {
+            String sql = "SELECT _id, name FROM notememo";
+            Cursor cursor = db.rawQuery(sql, null);
+            String[] from = {"name"};
+            int[] to = {android.R.id.text2};
+            SimpleCursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, cursor, from, to, 0);
+            lvMemoList.setAdapter(simpleCursorAdapter);
+        }
+        finally {
+            db.close();
+        }
     }
 }
