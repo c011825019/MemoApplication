@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
             String sql = "SELECT _id, name FROM notememo";
             Cursor cursor = db.rawQuery(sql, null);
             String[] from = {"name"};
-            int[] to = {android.R.id.text2};
+            int[] to = {android.R.id.text1};
             SimpleCursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, cursor, from, to, 0);
             lvMemoList.setAdapter(simpleCursorAdapter);
         }
