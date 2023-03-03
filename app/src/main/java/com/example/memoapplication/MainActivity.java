@@ -3,10 +3,13 @@ package com.example.memoapplication;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.database.Cursor;
+import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -17,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     Button btnSave;
     Button btnDelete;
     ListView lvMemoList = null;
+    int memoId = -1;
 
 
     @Override
@@ -29,6 +33,8 @@ public class MainActivity extends AppCompatActivity {
         lvMemoList = findViewById(R.id.lvMemoList);
 
         memoListDisplay();
+
+        lvMemoList.setOnItemClickListener(new ListItemClickListener());
     }
 
     //追加ボタン
@@ -88,6 +94,45 @@ public class MainActivity extends AppCompatActivity {
         }
         finally {
             db.close();
+        }
+    }
+
+    //Listをクリックしたときの処理
+    private class ListItemClickListener implements AdapterView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int postion, long id) {
+            memoId = (int)id;
+
+            btnSave.setEnabled(true);
+            btnDelete.setEnabled(true);
+
+            DetabaseHelper helper = new DetabaseHelper(MainActivity.this);
+            SQLiteDatabase db = helper.getReadableDatabase();
+
+            try {
+                String sql = "SELECT name, note FROM notememo WHERE _id =" + memoId;
+                Cursor cursor = db.rawQuery(sql, null);
+                String note = "";
+                String title = "";
+                while (cursor.moveToNext()) {
+                    int idxNote = cursor.getColumnIndex("note");
+                    note = cursor.getString(idxNote);
+
+                    int idxTitle = cursor.getColumnIndex("name");
+                    title = cursor.getString(idxTitle);
+                }
+
+                EditText etNote = findViewById(R.id.etNote);
+                etNote.setText(note);
+
+                EditText etTitle = findViewById(R.id.etTitle);
+                etTitle.setText(title);
+            }
+            finally {
+                db.close();
+            }
+
+
         }
     }
 }
