@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     Button btnDelete;
     ListView lvMemoList = null;
     int memoId = -1;
+    int save_select = 0; // 0:新規追加 2:編集
 
 
     @Override
@@ -46,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
         etNote.setText("");
         btnSave.setEnabled(true);
 
+        save_select = 0;
+
     }
 
     //保存ボタン
@@ -59,16 +62,38 @@ public class MainActivity extends AppCompatActivity {
         DetabaseHelper helper = new DetabaseHelper(MainActivity.this);
         SQLiteDatabase db = helper.getWritableDatabase();
 
-        try {
-            String sqlInsert = "INSERT INTO notememo (name, note) VALUES (?, ?)";
-            SQLiteStatement stmt = db.compileStatement(sqlInsert);
-            stmt.bindString(1, title);
-            stmt.bindString(2, note);
+        if (save_select == 1) {
+            // 編集時の処理
+            try {
+                String sqlDelete = "DELETE FROM notememo WHERE _id = ?";
+                SQLiteStatement stmt = db.compileStatement(sqlDelete);
+                stmt.bindLong(1, memoId);
+                stmt.executeUpdateDelete();
 
-            stmt.executeInsert();
-        }
-        finally {
-            db.close();
+                String sqlInsert = "INSERT INTO notememo (_id, name, note) VALUES (?, ?, ?)";
+                stmt = db.compileStatement(sqlInsert);
+                stmt.bindLong(1, memoId);
+                stmt.bindString(2, title);
+                stmt.bindString(3, note);
+
+                stmt.executeInsert();
+            }
+            finally {
+                db.close();
+            }
+        } else {
+            // 新規追加時の処理
+            try {
+                String sqlInsert = "INSERT INTO notememo (name, note) VALUES (?, ?)";
+                SQLiteStatement stmt = db.compileStatement(sqlInsert);
+                stmt.bindString(1, title);
+                stmt.bindString(2, note);
+
+                stmt.executeInsert();
+            }
+            finally {
+                db.close();
+            }
         }
 
         etTitle.setText("");
@@ -102,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int postion, long id) {
             memoId = (int)id;
+            save_select = 1;
 
             btnSave.setEnabled(true);
             btnDelete.setEnabled(true);
