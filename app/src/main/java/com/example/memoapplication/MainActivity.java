@@ -158,7 +158,31 @@ public class MainActivity extends AppCompatActivity {
                 db.close();
             }
 
+        }
 
+        // 削除処理
+        public void onDeleteButtonClick(View view) {
+            DetabaseHelper helper = new DetabaseHelper(MainActivity.this);
+            SQLiteDatabase db = helper.getWritableDatabase();
+
+            try {
+                String sqlDelete = "DELETE FROM notememo WHERE _id = ?";
+                SQLiteStatement stmt = db.compileStatement(sqlDelete);
+                stmt.bindLong(1, memoId);
+                stmt.executeUpdateDelete();
+            }
+            finally {
+                db.close();
+            }
+
+            EditText etTitle = findViewById(R.id.etTitle);
+            etTitle.setText("");
+            EditText etNote = findViewById(R.id.etNote);
+            etNote.setText("");
+            btnDelete.setEnabled(false);
+            btnSave.setEnabled(false);
+
+            memoListDisplay();
         }
     }
 }
