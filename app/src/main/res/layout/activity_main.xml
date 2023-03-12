@@ -51,7 +51,7 @@
         android:layout_height="wrap_content"
         android:enabled="false"
         android:onClick="onSaveButtonClick"
-        android:text="保存"/>
+        android:text="保存" />
 
     <Button
         android:id="@+id/btnDelete"
@@ -59,7 +59,7 @@
         android:layout_height="wrap_content"
         android:enabled="false"
         android:onClick="onDeleteButtonClick"
-        android:text="削除"/>
+        android:text="削除" />
 
 
 </LinearLayout>

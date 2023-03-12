@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
     private class ListItemClickListener implements AdapterView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int postion, long id) {
-            memoId = (int)id;
+            memoId = (int) id;
             save_select = 1;
 
             btnSave.setEnabled(true);
@@ -153,36 +153,38 @@ public class MainActivity extends AppCompatActivity {
 
                 EditText etTitle = findViewById(R.id.etTitle);
                 etTitle.setText(title);
-            }
-            finally {
+            } finally {
                 db.close();
             }
 
         }
+    }
 
-        // 削除処理
-        public void onDeleteButtonClick(View view) {
-            DetabaseHelper helper = new DetabaseHelper(MainActivity.this);
-            SQLiteDatabase db = helper.getWritableDatabase();
+    // 削除処理
+    public void onDeleteButtonClick(View view) {
+        EditText etNote = findViewById(R.id.etNote);
 
-            try {
-                String sqlDelete = "DELETE FROM notememo WHERE _id = ?";
-                SQLiteStatement stmt = db.compileStatement(sqlDelete);
-                stmt.bindLong(1, memoId);
-                stmt.executeUpdateDelete();
-            }
-            finally {
-                db.close();
-            }
+        EditText etTitle = findViewById(R.id.etTitle);
+        String title = etTitle.getText().toString();
 
-            EditText etTitle = findViewById(R.id.etTitle);
-            etTitle.setText("");
-            EditText etNote = findViewById(R.id.etNote);
-            etNote.setText("");
-            btnDelete.setEnabled(false);
-            btnSave.setEnabled(false);
+        DetabaseHelper helper = new DetabaseHelper(MainActivity.this);
+        SQLiteDatabase db = helper.getWritableDatabase();
 
-            memoListDisplay();
+        try {
+            String sqlDelete = "DELETE FROM notememo WHERE _id = ?";
+            SQLiteStatement stmt = db.compileStatement(sqlDelete);
+            stmt.bindLong(1, memoId);
+            stmt.executeUpdateDelete();
+
+        } finally {
+            db.close();
         }
+
+        etTitle.setText("");
+        etNote.setText("");
+        btnSave.setEnabled(false);
+        btnDelete.setEnabled(false);
+
+        memoListDisplay();
     }
 }
